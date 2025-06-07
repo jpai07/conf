@@ -192,23 +192,43 @@ keys = [
     ),
 ]
 
+workspace_names = [
+    "𝕬",
+    "𝕭",
+    "𝕮",
+    "𝕯",
+    "𝕰",
+    "𝕱",
+    "𝕲",
+]
 
-groups = [Group(i) for i in "123456789"]
+workspaces = [
+    {"name": workspace_names[0], "key": "1"},
+    {"name": workspace_names[1], "key": "2"},
+    {"name": workspace_names[2], "key": "3"},
+    {"name": workspace_names[3], "key": "4"},
+    {"name": workspace_names[4], "key": "5"},
+    {"name": workspace_names[5], "key": "6"},
+    {"name": workspace_names[6], "key": "7"}, 
+]
 
-for i in groups:
+groups = []
+
+for workspace in workspaces:
+    groups.append(Group(workspace["name"]))
     keys.extend(
         [
             Key(
                 [mod],
-                i.name,
-                lazy.group[i.name].toscreen(),
-                desc=f"Switch to group {i.name}",
+                workspace["key"],
+                lazy.group[workspace["name"]].toscreen(),
+                desc=f"Switch to group {workspace["name"]}",
             ),
             Key(
                 [mod, "shift"],
-                i.name,
-                lazy.window.togroup(i.name, switch_group=True),
-                desc=f"Switch to & move focused window to group {i.name}",
+                workspace["key"],
+                lazy.window.togroup(workspace["name"], switch_group=True),
+                desc=f"Switch to & move focused window to group {workspace["name"]}",
             ),
         ]
     )
@@ -239,22 +259,29 @@ screens = [
     Screen(
         top=bar.Bar(
             [
-                widget.CurrentLayout(),
+                # widget.Image(filename=os.path.expanduser('~/.config/qtile/icons/skull-solid-white.svg'),
+                #     background="000000",
+                #     margin_x=8,
+                #     margin_y=6
+                # ),
+                widget.TextBox(" 🜋", background="#550000", fontsize=26, width=45, margin_x=4, margin_y=2, padding=5),
                 widget.GroupBox(),
                 widget.Prompt(),
-                widget.WindowName(background="#800080", width=100, max_chars=30),
+                widget.WindowName(width=350, max_chars=30),
                 widget.Systray(),
-                widget.Spacer(bar.STRETCH, background="#FFFF00"),
-                # widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
-                widget.Spacer(bar.STRETCH, background="#964B00"),
-                widget.Spacer(bar.STRETCH, background="#FF0000"),
+                widget.Spacer(bar.STRETCH), # LEFT background="#FFFF00"
+                widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
+                widget.Spacer(bar.STRETCH), # RIGHT background="#964B00"
+                # widget.Spacer(bar.STRETCH, background="#FF0000"), # RIGHT
+                widget.CurrentLayout(),
+                widget.Pomodoro(),
                 widget.QuickExit(),
             ],
             32,
             # background="#",
             margins=[3,4,2,4],
-            border_width=[0, 0, 0, 0],
-            border_color=["9e3b26", "000000", "9e3b26", "000000"],
+            border_width=[0, 0, 4, 0],
+            border_color=["000000", "000000", "550000", "000000"],
         ),
     ),
 ]
