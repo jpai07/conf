@@ -7,6 +7,8 @@ from libqtile.utils import guess_terminal
 import os
 import subprocess
 
+from colors import color
+
 
 @hook.subscribe.startup
 def autostart():
@@ -16,8 +18,8 @@ def autostart():
 
 mod = "mod4"
 alt = "mod1"
-term = "alacritty"
-terminal = guess_terminal()
+terminal = "alacritty"
+# terminal = guess_terminal()
 
 keys = [
     # Switch between windows
@@ -192,65 +194,46 @@ keys = [
     ),
 ]
 
-workspace_names = [
-    "𝕬",
-    "𝕭",
-    "𝕮",
-    "𝕯",
-    "𝕰",
-    "𝕱",
-    "𝕲",
-]
+# GROUPS
+group_names = "𝕬 𝕭 𝕮 𝕯 𝕰 𝕱 𝕲".split()
+groups = [Group(name) for name in group_names]
+for i, name in enumerate(group_names, 1):
+    idx = str(i)
+    keys += [
+        Key([mod], idx, lazy.group[name].toscreen()),
+        Key([mod, 'shift'], idx, lazy.window.togroup(name))]
 
-workspaces = [
-    {"name": workspace_names[0], "key": "1"},
-    {"name": workspace_names[1], "key": "2"},
-    {"name": workspace_names[2], "key": "3"},
-    {"name": workspace_names[3], "key": "4"},
-    {"name": workspace_names[4], "key": "5"},
-    {"name": workspace_names[5], "key": "6"},
-    {"name": workspace_names[6], "key": "7"}, 
-]
 
-groups = []
+# LAYOUTS
 
-for workspace in workspaces:
-    groups.append(Group(workspace["name"]))
-    keys.extend(
-        [
-            Key(
-                [mod],
-                workspace["key"],
-                lazy.group[workspace["name"]].toscreen(),
-                desc=f"Switch to group {workspace["name"]}",
-            ),
-            Key(
-                [mod, "shift"],
-                workspace["key"],
-                lazy.window.togroup(workspace["name"], switch_group=True),
-                desc=f"Switch to & move focused window to group {workspace["name"]}",
-            ),
-        ]
-    )
+layout_default_config = {
+    "border_focus": color['blue'], 
+    "border_normal": color['maroon'],
+    "border_width": 4,
+    "margin": 4,
+
+} 
 
 layouts = [
-    layout.Columns(border_focus_stack=["#d75f5f", "#8f3d3d"], border_width=4),
-    layout.Max(),
+    layout.Columns(**layout_default_config),
+    layout.Max(**layout_default_config),
+    layout.MonadTall(**layout_default_config),
+    layout.MonadWide(**layout_default_config),
+    layout.RatioTile(**layout_default_config),
+    layout.TreeTab(**layout_default_config),
     # layout.Stack(num_stacks=2),
     # layout.Bsp(),
     # layout.Matrix(),
-    layout.MonadTall(),
-    layout.MonadWide(),
-    layout.RatioTile(),
     # layout.Tile(),
-    layout.TreeTab(),
     # layout.VerticalTile(),
     # layout.Zoomy(),
 ]
 
 widget_defaults = dict(
-    font="Jetbrains Mono Nerd Font",
-    fontsize=18,
+    # font="Jetbrains Mono Nerd Font",
+    font="Darkcastle PERSONAL USE", # URW Bookman L # Darkcastle PERSONAL USE
+    foreground=color['fg'],
+    fontsize=20,
     padding=4,
 )
 extension_defaults = widget_defaults.copy()
@@ -259,29 +242,25 @@ screens = [
     Screen(
         top=bar.Bar(
             [
-                # widget.Image(filename=os.path.expanduser('~/.config/qtile/icons/skull-solid-white.svg'),
-                #     background="000000",
-                #     margin_x=8,
-                #     margin_y=6
-                # ),
-                widget.TextBox(" 🜋", background="#550000", fontsize=26, width=45, margin_x=4, margin_y=2, padding=5),
-                widget.GroupBox(),
+                widget.TextBox(" ⚚", background=color['darkgray'], foreground=color['fg'], fontsize=28, width=47, margin_x=4, margin_y=2, padding=5), #550000 maroon
+                widget.GroupBox(highlight_method='line', active=color['green'], inactive=color['darkgray'], highlight_color=color['dark']),
                 widget.Prompt(),
-                widget.WindowName(width=350, max_chars=30),
+                widget.WindowName(font="Darkcastle PERSONAL USE", width=350, max_chars=30),
                 widget.Systray(),
                 widget.Spacer(bar.STRETCH), # LEFT background="#FFFF00"
-                widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
+                widget.Clock(format="%Y-%m-%d %a %I:%M %p", font="Routed Gothic"), # JetBrainsMono Nerd Font Mono
                 widget.Spacer(bar.STRETCH), # RIGHT background="#964B00"
                 # widget.Spacer(bar.STRETCH, background="#FF0000"), # RIGHT
                 widget.CurrentLayout(),
+                widget.Wlan(font='sans', interface='wlan0'), # not displaying
+                # widget.Systray(),
                 widget.Pomodoro(),
-                widget.QuickExit(),
             ],
-            32,
-            # background="#",
-            margins=[3,4,2,4],
+            34,
+            background=color['black'],
+            margin=[5,4,2,4],
             border_width=[0, 0, 4, 0],
-            border_color=["000000", "000000", "550000", "000000"],
+            border_color=["000000", "000000", color['darkgray'], "000000"], #550000 maroon
         ),
     ),
 ]
