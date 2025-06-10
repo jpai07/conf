@@ -1,8 +1,11 @@
 
-from libqtile import bar, layout, qtile, widget, hook
+from libqtile import bar, layout, qtile, hook
 from libqtile.config import Click, Drag, Group, Key, Match, Screen, EzKey
 from libqtile.lazy import lazy
 from libqtile.utils import guess_terminal
+
+from qtile_extras import widget
+from qtile_extras.widget.decorations import ImageDecoration, PowerLineDecoration 
 
 import os
 import subprocess
@@ -162,40 +165,20 @@ keys = [
     # Hardware keys
 
     # Volume
-    Key(
-        [], "XF86AudioRaiseVolume",
-        "pactl set-sink-volume @DEFAULT_SINK@ +5%"
-    ),
-    Key(
-        [], "XF86AudioLowerVolume",
-        "pactl set-sink-volume @DEFAULT_SINK@ -5%"
-    ),
-    Key(
-        [], "XF86AudioMute",
-        "pactl set-sink-volume @DEFAULT_SINK@ toggle"
-    ),
-    Key(
-        [], "XF86AudioNext",
-        ""
-    ),
-    Key(
-        [], "XF86AudioPrev",
-        ""
-    ),
+    Key([], "XF86AudioRaiseVolume", "pactl set-sink-volume @DEFAULT_SINK@ +5%"),
+    Key([], "XF86AudioLowerVolume", "pactl set-sink-volume @DEFAULT_SINK@ -5%"),
+    Key([], "XF86AudioMute", "pactl set-sink-volume @DEFAULT_SINK@ toggle"),
+    # Key([], "XF86AudioNext", ""),
+    # Key([], "XF86AudioPrev", ""),
 
     # Brightness
-    Key(
-        [], "XF86MonBrightnessUp",
-        "brightnessctl set +5%"
-    ),
-    Key(
-        [], "XF86MonBrightnessDown",
-        "brightnessctl set 5%-"
-    ),
+    Key([], "XF86MonBrightnessUp", "brightnessctl set +5%"),
+    Key([], "XF86MonBrightnessDown", "brightnessctl set 5%-"),
 ]
 
 # GROUPS
 group_names = "𝕬 𝕭 𝕮 𝕯 𝕰 𝕱 𝕲".split()
+# group_names = "A B C D E F G".split()
 groups = [Group(name) for name in group_names]
 for i, name in enumerate(group_names, 1):
     idx = str(i)
@@ -218,8 +201,8 @@ layouts = [
     layout.Columns(**layout_default_config),
     layout.Max(**layout_default_config),
     layout.MonadTall(**layout_default_config),
-    layout.MonadWide(**layout_default_config),
-    layout.RatioTile(**layout_default_config),
+    # layout.MonadWide(**layout_default_config),
+    # layout.RatioTile(**layout_default_config),
     layout.TreeTab(**layout_default_config),
     # layout.Stack(num_stacks=2),
     # layout.Bsp(),
@@ -229,12 +212,59 @@ layouts = [
     # layout.Zoomy(),
 ]
 
+
+powerline_arrow_left = {
+    "decorations": [
+        PowerLineDecoration(
+            size=12,
+            )
+    ]
+}
+
+powerline_arrow_right = {
+    "decorations": [
+        PowerLineDecoration(
+            path='arrow_right',
+            padding_x=10,
+            size=12
+            )
+    ]
+}
+
+powerline_rounded_left = {
+    "decorations": [
+        PowerLineDecoration(
+            path='rounded_left',
+            size=12,
+            )
+    ]
+}
+
+powerline_rounded_right = {
+    "decorations": [
+        PowerLineDecoration(
+            path='rounded_right',
+            size=10,
+            )
+    ]
+}
+
+image_decor = {
+    "decorations": [
+        ImageDecoration(
+            image=os.path.expanduser('~/Downloads/wallpapersden.com_windows-10-4k-abstract-layer_1920x1080.jpg'),
+            whole_bar=True
+        ),
+    ]
+}
+
+
 widget_defaults = dict(
     # font="Jetbrains Mono Nerd Font",
-    font="Darkcastle PERSONAL USE", # URW Bookman L # Darkcastle PERSONAL USE
+    font='Routed Gothic', # URW Bookman L # Darkcastle PERSONAL USE
     foreground=color['fg'],
     fontsize=20,
-    padding=4,
+    padding=4
 )
 extension_defaults = widget_defaults.copy()
 
@@ -243,21 +273,83 @@ screens = [
         top=bar.Bar(
             [
                 widget.TextBox(" ⚚", background=color['darkgray'], foreground=color['fg'], fontsize=28, width=47, margin_x=4, margin_y=2, padding=5), #550000 maroon
-                widget.GroupBox(highlight_method='line', active=color['green'], inactive=color['darkgray'], highlight_color=color['dark']),
+                widget.GroupBox( 
+                    background=color['gray'],
+                    block_highlight_text_color=color['white'],
+                    borderwidth=3,
+                    disable_drag=True,
+                    # foreground=color['white'],
+                    # group highlighting
+                    highlight_method='line',
+                    # gradient
+                    highlight_color=[color['dark'], color['darkgray']],
+                    # margins
+                    margin_x=1,
+                    # margin_y=2,
+                    # padding
+                    padding_x=8,
+                    # padding_y=10,
+                    rounded=False,
+                    # text coloring
+                    active=color['green'], 
+                    inactive=color['darkgray'],
+                    this_current_screen_border=color['red'],
+                    **powerline_arrow_left,
+                    ),
+                widget.Sep(
+                    linewidth=0,
+                    background=color['bg'],
+                    # padding=15,
+                    **powerline_rounded_left
+                    ),
+                # widget.Sep(
+                #     linewidth=0,
+                #     background=color['white'],
+                #     # padding=10,
+                #     **powerline_arrow_right
+                #     ),
                 widget.Prompt(),
-                widget.WindowName(font="Darkcastle PERSONAL USE", width=350, max_chars=30),
-                widget.Systray(),
-                widget.Spacer(bar.STRETCH), # LEFT background="#FFFF00"
-                widget.Clock(format="%Y-%m-%d %a %I:%M %p", font="Routed Gothic"), # JetBrainsMono Nerd Font Mono
-                widget.Spacer(bar.STRETCH), # RIGHT background="#964B00"
-                # widget.Spacer(bar.STRETCH, background="#FF0000"), # RIGHT
-                widget.CurrentLayout(),
-                widget.Wlan(font='sans', interface='wlan0'), # not displaying
+                widget.WindowName(font='Routed Gothic', width=350, max_chars=35),
                 # widget.Systray(),
-                widget.Pomodoro(),
+                widget.Spacer(bar.STRETCH), # LEFT background="#FFFF00"
+                widget.Clock(
+                    format="%a %-d %-I:%-M %p", 
+                    font="Routed Gothic",
+                    ), # JetBrainsMono Nerd Font Mono
+                # widget.Spacer(bar.STRETCH), # RIGHT background="#964B00"
+                widget.Spacer(bar.STRETCH, background=color['bg'], **powerline_arrow_right),
+                # widget.Spacer(bar.STRETCH, background="#FF0000"), # RIGHT
+                # widget.LaunchBar(), 
+                # widget.Net(interface='wlp61s0', font='sans'), 
+                widget.CheckUpdates(
+                    font='Darkcastle PERSONAL USE', # Jetbrains Mono Nerd Font
+                    background=color['blue'],
+                    colour_have_updates=color['black'],
+                    colour_no_updates=color['black'],
+                    display_format='Updates: y',
+                    no_update_string='Updates: n',
+                    distro='Arch',
+                    # execute="alacritty", # can exec some script
+                    # foreground=color['red'],
+                    **powerline_arrow_right,
+                    ),
+                widget.CurrentLayout(foreground=color['bg'], background=color['green'], font='Darkcastle PERSONAL USE'),
+                widget.CurrentLayoutIcon(custom_icon_paths=os.path.expanduser('~/.config/qtile/icons'), font='sans', padding=10, background=color['green']),
+                # widget.Battery(font='sans'),
+                widget.CPUGraph(graph_color=color['yellow'], fill_color=color['yellow'], border_width=3, margin_x=12, margin_y=4, background=color['darkgray']),
+                # widget.HDDBusyGraph(graph_color=color['magenta'], fill_color=color['magenta'], border_width=3, margin_x=12, margin_y=4),
+                widget.MemoryGraph(graph_color=color['green'], fill_color=color['green'], border_width=3, margin_x=12, margin_y=4, background=color['darkgray']),
+                widget.NetGraph(graph_color=color['blue'], fill_color=color['blue'], border_width=3, margin_x=12, margin_y=4, frequency=0.5, background=color['darkgray'], **powerline_rounded_right),
+                # widget.PulseVolume(),
+                widget.Volume(background=color['dark'], font='sans', emoji=True), 
+                widget.Battery(background=color['dark'], format='BT: {percent:2.0%}'),
+                # widget.OpenWeather(font='sans', location='Philadelphia', format='{location_city}: {icon}'),
+                # widget.Wlan(font='sans', interface='wlan0'), # not displaying
+                # widget.Systray(),
+                # widget.Pomodoro(),
             ],
             34,
-            background=color['black'],
+            background=color['bg'],
             margin=[5,4,2,4],
             border_width=[0, 0, 4, 0],
             border_color=["000000", "000000", color['darkgray'], "000000"], #550000 maroon
